@@ -1,25 +1,14 @@
-#include <malloc.h>
+#include "terminal_tokens.h"
+#include <stdlib.h>
 
-// structure to store command, flag, file e.t.c.
-// is an item of list
-struct word_tocken 
+int main(int argc, char **argv)
 {
-    char *word;
-    struct word_tocken *next;
-};
-// creates a list of words contained in a provided string.
-// returns pointer of type struct word_tocken to the first element of the
-// list. If string was empty points to NULL
-struct word_tocken *string_to_list(const char *string_input) 
-{
-   struct word_tocken *first = NULL; 
-   struct word_tocken *last = NULL;
-   struct word_tocken *tmp;
-   const char *string_ptr = string_input;
-   while(*string_ptr)
-   {
-       tmp 
-       string_ptr++;
-   }
+    struct command_set *set = malloc(sizeof(struct command_set));
+    set->first = set->last = NULL;
+    string_to_list(argv[1], set);
+    
+    wt_print_list(set->first);
+    wt_clear_list(set->first);
+    free(set);
+    return 0;
 }
-
