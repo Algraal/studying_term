@@ -17,24 +17,27 @@ bool Commands::string_to_tockens(const std::string &src)
             {
                 // text inside double quotes is considered a tocken
                 tockens.push_back(tocken);
-                tocken = "";
-                is_quoted = false;
             } 
             else
             {
-                is_quoted = true;
+                // empty token can be entered only using ""
+                if(!tocken.empty())
+                {
+                tockens.push_back(tocken);
+                }
             }
+            tocken = "";
+            is_quoted ^= true;
         }
         else if(is_shilded)
         {
-            if(ch == '"')
+            // other symbols after shileding symbols are skipped
+            switch(ch)
             {
-                tocken += '\"';  
-            }
-            else if(ch == '\\')
-            {
-                tocken += '\\';
-            }
+                case '"': tocken += '"'; break;
+                case '\\': tocken += '\\'; break;
+                // can be implemented later
+            } 
         }
         else if((ch == ' ' || ch == '\t') && !is_quoted && !is_previous_sep)
         {
@@ -74,9 +77,11 @@ bool Commands::string_to_tockens(const std::string &src)
     {
         tockens.push_back(tocken);
     }
+    // if string contained unmatched quote it is impossible to split it into 
+    // tokens
     if(is_quoted)
     {
-        tockens.clear();
+        std::cout << "Error: unmatched quotes" << std::endl;
         return false;
     }
     return true;
