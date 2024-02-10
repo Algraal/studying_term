@@ -15,6 +15,7 @@ private:
     // to be executed by execve
     std::vector<std::string> tockens;
     bool string_to_tockens(const std::string &src);
+    void Commands::print_tockens() const;
 };
 
 #endif
