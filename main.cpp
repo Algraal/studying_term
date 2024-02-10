@@ -9,8 +9,8 @@ int main()
     while(input != "exit")
     {
         Commands com;
-        com.string_to_tockens(input);
-        com.print_tockens();
+        com.string_to_tokens(input);
+        com.print_tokens();
         getline(std::cin, input);
     }
     return 0;

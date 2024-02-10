@@ -2,31 +2,31 @@
 #include <algorithm>
 #include "commands.h"
 
-bool Commands::string_to_tockens(const std::string &src)
+bool Commands::string_to_tokens(const std::string &src)
 {
     // variables-modifiers of input
     bool is_quoted = false;
     bool is_shilded = false;
     bool is_previous_sep = false;
-    std::string tocken;
+    std::string token;
     for(const char &ch : src)
     {
         if(ch == '"' && !is_shilded)
         {
             if(is_quoted)
             {
-                // text inside double quotes is considered a tocken
-                tockens.push_back(tocken);
+                // text inside double quotes is considered a token
+                tokens.push_back(token);
             } 
             else
             {
                 // empty token can be entered only using ""
-                if(!tocken.empty())
+                if(!token.empty())
                 {
-                tockens.push_back(tocken);
+                tokens.push_back(token);
                 }
             }
-            tocken = "";
+            token = "";
             is_quoted ^= true;
         }
         else if(is_shilded)
@@ -34,18 +34,18 @@ bool Commands::string_to_tockens(const std::string &src)
             // other symbols after shileding symbols are skipped
             switch(ch)
             {
-                case '"': tocken += '"'; break;
-                case '\\': tocken += '\\'; break;
+                case '"': token += '"'; break;
+                case '\\': token += '\\'; break;
                 // can be implemented later
             } 
         }
         else if((ch == ' ' || ch == '\t') && !is_quoted && !is_previous_sep)
         {
-            if(!tocken.empty())
+            if(!token.empty())
             {
-                // pushes tocken after separator
-                tockens.push_back(tocken);
-                tocken = "";
+                // pushes token after separator
+                tokens.push_back(token);
+                token = "";
             }
         }
         else if((ch == '\\' && !is_shilded) || ((ch == '\t' || ch == ' ') && is_previous_sep))
@@ -55,7 +55,7 @@ bool Commands::string_to_tockens(const std::string &src)
         }
         else
         {
-            tocken += ch;
+            token += ch;
         }
         // next char will be shilded after '\'
         if(ch == '\\' && !is_shilded)
@@ -72,10 +72,10 @@ bool Commands::string_to_tockens(const std::string &src)
             is_previous_sep = true;
         }
     }
-    // pushes last tocken
-    if(!tocken.empty())
+    // pushes last token
+    if(!token.empty())
     {
-        tockens.push_back(tocken);
+        tokens.push_back(token);
     }
     // if string contained unmatched quote it is impossible to split it into 
     // tokens
@@ -87,11 +87,11 @@ bool Commands::string_to_tockens(const std::string &src)
     return true;
 }
 
-void Commands::print_tockens() const
+void Commands::print_tokens() const
 {
-    for(const std::string &tocken : tockens)
+    for(const std::string &token : tokens)
     {
-        std::cout << '[' << tocken << "] ";
+        std::cout << '[' << token << "] ";
     }
     std::cout << std::endl;
 }

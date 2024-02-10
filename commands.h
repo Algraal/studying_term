@@ -9,14 +9,14 @@ public:
     // two constructors are necessary without any (for first set of commands)
     // and with parametres to store modifiers
     //Commands();
-    bool string_to_tockens(const std::string &src);
-    // prints tockens for debug
-    void print_tockens() const;
+    bool string_to_tokens(const std::string &src);
+    // prints tokens for debug
+    void print_tokens() const;
 
 private:
-    // tockens stores a set of commands, flags, filenames and other tockens
+    // tokens stores a set of commands, flags, filenames and other tokens
     // to be executed by execve
-    std::vector<std::string> tockens;
+    std::vector<std::string> tokens;
 };
 
 #endif
