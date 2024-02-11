@@ -1,8 +1,10 @@
 #include <iostream>
 #include <algorithm>
-#include "commands.h"
 #include <unistd.h>
 #include <cstring>
+#include <sys/wait.h>
+
+#include "commands.h"
 
 bool Commands::string_to_tokens(const std::string &src)
 {
@@ -79,7 +81,6 @@ bool Commands::string_to_tokens(const std::string &src)
     {
         tokens.push_back(token);
     }
-    tokens.push_back(nullptr);
     // if string contained unmatched quote it is impossible to split it into 
     // tokens
     if(is_quoted)
@@ -90,20 +91,35 @@ bool Commands::string_to_tokens(const std::string &src)
     return true;
 }
 
-void Commands::execute_commands() const
+bool Commands::execute_commands() const
 {
-    int pid;
-    pid = fork();
+    if(tokens.empty())
+    {
+        perror("Empty tokens");
+        return false;
+    }
     // flushes buffer to prevent duplication of data in processes
-    std::flush;
+    std::vector <char*> cstyle_tokens;
+    // copies content of tocken vector of strings into vector of 
+    // c style strings
+    for(const std::string& token : tokens)
+    {
+        cstyle_tokens.push_back(const_cast<char*>(token.c_str()));
+    }
+    // adds null_ptr to cstring. execvp expects NULL at the end of
+    // array of commands
+    cstyle_tokens.push_back(nullptr);
+    
+    std::cout << std::flush;
+    int pid = fork();
     if(pid == -1)
     {
         perror("pid");
-        return true;
+        return false;
     }
     if(pid == 0)
     {
-        execvp(tokens.at(0).c_str(),const_cast<char* const*>tokens.data());
+        execvp(cstyle_tokens.at(0), cstyle_tokens.data());
         perror("execvp");
         return false;
     }
