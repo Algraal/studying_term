@@ -1,6 +1,8 @@
 #include <iostream>
 #include <algorithm>
 #include "commands.h"
+#include <unistd.h>
+#include <cstring>
 
 bool Commands::string_to_tokens(const std::string &src)
 {
@@ -77,6 +79,7 @@ bool Commands::string_to_tokens(const std::string &src)
     {
         tokens.push_back(token);
     }
+    tokens.push_back(nullptr);
     // if string contained unmatched quote it is impossible to split it into 
     // tokens
     if(is_quoted)
@@ -84,6 +87,27 @@ bool Commands::string_to_tokens(const std::string &src)
         std::cout << "Error: unmatched quotes" << std::endl;
         return false;
     }
+    return true;
+}
+
+void Commands::execute_commands() const
+{
+    int pid;
+    pid = fork();
+    // flushes buffer to prevent duplication of data in processes
+    std::flush;
+    if(pid == -1)
+    {
+        perror("pid");
+        return true;
+    }
+    if(pid == 0)
+    {
+        execvp(tokens.at(0).c_str(),const_cast<char* const*>tokens.data());
+        perror("execvp");
+        return false;
+    }
+    wait(NULL);
     return true;
 }
 

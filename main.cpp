@@ -11,6 +11,7 @@ int main()
         Commands com;
         com.string_to_tokens(input);
         com.print_tokens();
+        com.execute_commands();
         getline(std::cin, input);
     }
     return 0;

@@ -12,6 +12,8 @@ public:
     bool string_to_tokens(const std::string &src);
     // prints tokens for debug
     void print_tokens() const;
+    // executes request using tokens as a command for execvp
+    bool execute_commands() const;
 
 private:
     // tokens stores a set of commands, flags, filenames and other tokens
