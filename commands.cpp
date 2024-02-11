@@ -3,8 +3,11 @@
 #include <unistd.h>
 #include <cstring>
 #include <sys/wait.h>
+#include <array>
 
 #include "commands.h"
+// other delimetres will be implemeted later
+static const std::array<std::string> delimetres = {"&"};
 
 bool Commands::string_to_tokens(const std::string &src)
 {
@@ -12,9 +15,10 @@ bool Commands::string_to_tokens(const std::string &src)
     bool is_quoted = false;
     bool is_shilded = false;
     bool is_previous_sep = false;
+    std::string del;
     std::string token;
-    for(const char &ch : src)
-    {
+    for(const std::string &ch = 0 : src)
+    { 
         if(ch == '"' && !is_shilded)
         {
             if(is_quoted)
@@ -32,7 +36,7 @@ bool Commands::string_to_tokens(const std::string &src)
             }
             token = "";
             is_quoted ^= true;
-        }
+        } 
         else if(is_shilded)
         {
             // other symbols after shileding symbols are skipped

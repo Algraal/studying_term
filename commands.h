@@ -8,7 +8,7 @@ class Commands
 public:
     // two constructors are necessary without any (for first set of commands)
     // and with parametres to store modifiers
-    //Commands();
+    Commands(bool bg_mode = false) : to_background_mode(bg_mode) {};
     bool string_to_tokens(const std::string &src);
     // prints tokens for debug
     void print_tokens() const;
@@ -19,6 +19,7 @@ private:
     // tokens stores a set of commands, flags, filenames and other tokens
     // to be executed by execve
     std::vector<std::string> tokens;
+    bool to_background_mode;
 };
 
 #endif
