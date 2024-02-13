@@ -63,9 +63,11 @@ std::map<std::string::size_type, std::string::size_type> find_matched_quotes(
 }
 // function to check if passed position inside one of the ranges provided
 // in map of indexes
-bool is_pos_quoted(const std::map<std::string::size_type, std::string::size_type> 
-        quotes_map, std::string::size_type pos)
+bool is_pos_quoted(const std::string &src, std::string::size_type pos)
 {
+    std::map<std::string::size_type, std::string::size_type> quotes_map = 
+        find_matched_quotes(src);
+    
     for(const std::pair<const std::string::size_type, std::string::size_type> 
             &range_points : quotes_map)
     {
@@ -81,14 +83,8 @@ bool is_pos_quoted(const std::map<std::string::size_type, std::string::size_type
     }
     return false;
 }
-// splits user input into the simplest sets of commands
-// !!!!!
-// Commands::Commands is replaced for debug
-// recursivly disassembles input, initializes new Command objects
-bool input_to_commands(
-        std::map<std::string::size_type, std::string::size_type> quotes_map,
-        std::string &src)
-{
+
+std::string &split(std::map<std::string::size_type, std::string::size_type> quotes_map)
     std::string priority_commands;
     std::string::size_type start_pos = 0;
     std::string::size_type end_pos = 0;
@@ -122,7 +118,15 @@ bool input_to_commands(
             end_pos++;
         }
     }
-    return false;   
+// splits user input into the simplest sets of commands
+// !!!!!
+// Commands::Commands is replaced for debug
+// recursivly disassembles input, initializes new Command objects
+bool input_to_commands(
+        std::map<std::string::size_type, std::string::size_type> quotes_map,
+        std::string &src)
+{
+        return false;   
 }
 std::vector<std::string> split_row_input(std::string &src)
 {
