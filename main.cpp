@@ -84,57 +84,110 @@ bool is_pos_quoted(const std::string &src, std::string::size_type pos)
     return false;
 }
 
-std::string &split(std::map<std::string::size_type, std::string::size_type> quotes_map)
-    std::string priority_commands;
-    std::string::size_type start_pos = 0;
-    std::string::size_type end_pos = 0;
 
-    while(start_pos != std::string::npos && start_pos <= src.length()-1)
+// returns position of the last occurance of req_str outside quotes
+std::string::size_type reverse_find_symbol_position(const std::string &src, std::string req_str)
+{
+    std::string::size_type start_pos = src.rfind(req_str);
+    while(start_pos != std::string::npos)
     {
-        start_pos = src.find('(', start_pos);        
-        // This segment looks for code code in (  )
-        if(!is_pos_quoted(quotes_map, start_pos))
+        if(!is_pos_quoted(src, start_pos))
         {
-            end_pos = src.find(')', end_pos);
-            if(end_pos != std::string::npos && 
-                !is_pos_quoted(quotes_map, end_pos))
+            // unquoted bracket is found
+            break;
+        }
+        else
+        {
+            if(start_pos != 1)
             {
-                priority_commands = src.substr(start_pos, end_pos - start_pos);
-                std::string tmp_sliced_str = src.substr(0, start_pos);
-                if(end_pos != src.length() - 1)
-                {
-                    tmp_sliced_str += src.substr(end_pos + 1, src.length() - end_pos - 1);
-                }
-                // part of row input is deleted
-                src = tmp_sliced_str;
+                start_pos--;
+            }
+            else
+            {
+                // if there is no unquoted bracket
+                start_pos = std::string::npos;
+                break;
             }
         }
-        if(start_pos != std::string::npos && start_pos != src.length()-1)
-        {
-            start_pos++;
-        }
-        if(end_pos != std::string::npos && end_pos != src.length() - 1)
-        {
-            end_pos++;
-        }
+        start_pos = src.rfind(req_str, start_pos);
     }
+    return start_pos;
+}
+
+
+// returns position of the first occurance of req_str outside quotes
+std::string::size_type find_symbol_position(const std::string &src, std::string req_str)
+{
+    std::string::size_type start_pos = src.find(req_str);
+    while(start_pos != std::string::npos)
+    {
+        if(!is_pos_quoted(src, start_pos))
+        {
+            // unquoted bracket is found
+            break;
+        }
+        else
+        {
+            if(start_pos != src.length() - 1)
+            {
+                start_pos++;
+            }
+            else
+            {
+                // if there is no unquoted bracket
+                start_pos = std::string::npos;
+                break;
+            }
+        }
+        start_pos = src.find(req_str, start_pos);
+    }
+    return start_pos;
+}
+
+std::string split_braсkets(std::string &src)
+{
+   std::string::size_type start_pos = find_symbol_position(src, "(");
+   std::string::size_type end_pos = reverse_find_symbol_position(src, ")");
+   // if one of the positions npos - error, if start > end - error
+   // that kind of errors should be parced by raw input analysator
+   // these checks are not required.
+   if((start_pos != std::string::npos && end_pos != std::string::npos 
+               && start_pos < end_pos))
+   {
+        // Brackets are deleted in src and results
+        std::string result = src.substr(start_pos + 1, end_pos - start_pos - 1);
+        // slices of src excluding text in brackets are stored together
+        std::string new_src = src.substr(0, start_pos);
+        new_src += src.substr(end_pos + 1, src.length() - end_pos - 1);
+        // brackets and text inside them are deleted
+        src = new_src;
+        return result;
+   }
+   else
+   {
+       return "";
+   }
+}
 // splits user input into the simplest sets of commands
 // !!!!!
 // Commands::Commands is replaced for debug
 // recursivly disassembles input, initializes new Command objects
-bool input_to_commands(
-        std::map<std::string::size_type, std::string::size_type> quotes_map,
-        std::string &src)
+bool input_to_commands(std::string &src)
 {
-        return false;   
+    std::string res = split_braсkets(src); 
+    std::cout << res << std::endl;
+    std::cout << src << std::endl;
+    std::cout << "NEXT" << std::endl;
+    if(!res.empty())
+    {
+        input_to_commands(res);
+    }
+    return false;   
 }
 std::vector<std::string> split_row_input(std::string &src)
 {
-    std::map<std::string::size_type, std::string::size_type> quotes_positions 
-                = find_matched_quotes(src);
-    input_to_commands(quotes_positions, src);
-    std::cout << src << std::endl;
-    std::vector<std::string> d;
+    input_to_commands(src);
+    std::vector<std::string> d; 
     return d;
 }
 
