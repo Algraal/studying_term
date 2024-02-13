@@ -144,7 +144,7 @@ std::string::size_type find_symbol_position(const std::string &src, std::string 
     return start_pos;
 }
 
-std::string split_braсkets(std::string &src)
+std::string split_brackets(std::string &src)
 {
    std::string::size_type start_pos = find_symbol_position(src, "(");
    std::string::size_type end_pos = reverse_find_symbol_position(src, ")");
@@ -174,7 +174,7 @@ std::string split_braсkets(std::string &src)
 // recursivly disassembles input, initializes new Command objects
 bool input_to_commands(std::string &src)
 {
-    std::string res = split_braсkets(src); 
+    std::string res = split_brackets(src); 
     std::cout << res << std::endl;
     std::cout << src << std::endl;
     std::cout << "NEXT" << std::endl;
