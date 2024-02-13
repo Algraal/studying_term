@@ -1,0 +1,2 @@
+1. In real terminal unmatched '(' is not an error. In this case terminal expects for user input until ')'
+is entered. I should write preanalysis of raw input.
