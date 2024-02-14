@@ -7,7 +7,13 @@
 
 #include "commands.h"
 // other delimetres will be implemeted later
-static const std::array<std::string> delimetres = {"&"};
+
+namespace Delimiters {
+    constexpr char AND[] = "&&";
+    constexpr char OR[] = "||";
+    constexpr char SEMICOLON[] = ";";
+    constexpr char AMPERSAND[] = "&";
+}
 
 bool Commands::string_to_tokens(const std::string &src)
 {
@@ -17,7 +23,7 @@ bool Commands::string_to_tokens(const std::string &src)
     bool is_previous_sep = false;
     std::string del;
     std::string token;
-    for(const std::string &ch = 0 : src)
+    for(const char &ch : src)
     { 
         if(ch == '"' && !is_shilded)
         {

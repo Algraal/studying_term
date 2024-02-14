@@ -182,7 +182,9 @@ bool input_to_commands(std::string &src)
     {
         input_to_commands(res);
     }
-    return false;   
+    // I should correct firstly command.cpp
+    /*else()
+    return false;  */ 
 }
 std::vector<std::string> split_row_input(std::string &src)
 {
