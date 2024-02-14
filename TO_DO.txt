@@ -1,2 +1,7 @@
 1. In real terminal unmatched '(' is not an error. In this case terminal expects for user input until ')'
 is entered. I should write preanalysis of raw input.
+
++ BUG IN input_to_commands. Probably indexing to addresses that do not belong to the string. 
+
+find, rfind can be changed to find_if 
+

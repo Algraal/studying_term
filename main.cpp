@@ -186,11 +186,11 @@ bool input_to_commands(std::string &src)
     /*else()
     return false;  */ 
 }
-std::vector<std::string> split_row_input(std::string &src)
+std::vector<Commands> split_row_input(std::string &src)
 {
     input_to_commands(src);
-    std::vector<std::string> d; 
-    return d;
+    std::vector<Commands> coms; 
+    return coms;
 }
 
 int main()
