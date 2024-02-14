@@ -25,8 +25,6 @@ public:
     inline bool get_or_state() { return or_state; };   
     inline bool get_bg_mode_state() { return bg_mode_state; };
     inline bool get_sequently_state() { return sequently_state; };
-    void is_next_char();
-
 private:
     // tokens stores a set of commands, flags, filenames and other tokens
     // to be executed by execve
