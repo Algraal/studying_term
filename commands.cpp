@@ -6,14 +6,6 @@
 #include <array>
 
 #include "commands.h"
-// other delimetres will be implemeted later
-
-namespace Delimiters {
-    constexpr char AND[] = "&&";
-    constexpr char OR[] = "||";
-    constexpr char SEMICOLON[] = ";";
-    constexpr char AMPERSAND[] = "&";
-}
 
 bool Commands::string_to_tokens(const std::string &src)
 {
@@ -143,5 +135,6 @@ void Commands::print_tokens() const
     {
         std::cout << '[' << token << "] ";
     }
+    std::cout << "DEL: '" << end_delimiter << "'" << std::endl;
     std::cout << std::endl;
 }

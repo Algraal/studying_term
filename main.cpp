@@ -7,7 +7,7 @@
 
 
 // checks if next symbol is a passed one
-bool is_next_char(std::string src, std::string::size_type pos, char next_ch)
+bool is_next_char(const std::string &src, std::string::size_type pos, char next_ch)
 {
     if(pos + 1 < src.length())
     {
@@ -84,7 +84,6 @@ bool is_pos_quoted(const std::string &src, std::string::size_type pos)
     return false;
 }
 
-
 // returns position of the last occurance of req_str outside quotes
 std::string::size_type reverse_find_symbol_position(const std::string &src, std::string req_str)
 {
@@ -144,6 +143,24 @@ std::string::size_type find_symbol_position(const std::string &src, std::string 
     return start_pos;
 }
 
+// Popes a substring out of a passed string, according to given positions 
+// Changes src string. Returns poped out string
+std::string pop_substr(std::string &src, std::string::size_type start_pos, 
+        std::string::size_type end_pos)
+{
+    // Brackets are deleted in src and results
+    std::string result = src.substr(start_pos, end_pos - start_pos + 1);
+    // slices of src excluding text in brackets are stored together
+    std::string new_src = src.substr(0, start_pos);
+    new_src += src.substr(end_pos + 1, src.length() - end_pos - 1);
+    // brackets and text inside them are deleted
+    src = new_src;
+    return result;
+}
+
+// finds matching service brackets (content in brackets has the highest 
+// priority). Returns brackets substring, removing it from the source 
+// string. If brackets substring is not found returns empty string
 std::string split_brackets(std::string &src)
 {
    std::string::size_type start_pos = find_symbol_position(src, "(");
@@ -155,65 +172,123 @@ std::string split_brackets(std::string &src)
                && start_pos < end_pos))
    {
         // Brackets are deleted in src and results
-        std::string result = src.substr(start_pos + 1, end_pos - start_pos - 1);
-        // slices of src excluding text in brackets are stored together
-        std::string new_src = src.substr(0, start_pos);
-        new_src += src.substr(end_pos + 1, src.length() - end_pos - 1);
-        // brackets and text inside them are deleted
-        src = new_src;
-        return result;
+       std::string res = pop_substr(src, start_pos, end_pos);
+       // copies substring, deleting the first and the last symbols in the res
+       // string. 1 is symbol '(', 2 symbols is ')'.
+       return res.substr(1, res.length() - 2);
    }
    else
    {
        return "";
    }
 }
+
+Commands split_delimiters(std::string &src) 
+{
+    // block that finds the first occurance outside quotes of every delimiter
+    std::string::size_type and_pos = std::string::npos;
+    std::string::size_type or_pos = 
+        find_symbol_position(src, Delimiters::OR);
+    std::string::size_type bg_mode_pos = 
+        find_symbol_position(src, Delimiters::AMPERSAND);
+    std::string::size_type sequently_pos = 
+        find_symbol_position(src, Delimiters::SEMICOLON);
+    // special case for && and &, the simplest way
+    if(bg_mode_pos != std::string::npos)
+    {
+        // if the first symbol is & and the next one is & we get &&
+        if(is_next_char(src, bg_mode_pos, '&')) {
+            and_pos = bg_mode_pos;
+            bg_mode_pos = std::string::npos;
+        }
+    }
+
+    std::map<std::string, std::string::size_type> del_positions;
+
+    del_positions.insert(std::make_pair(Delimiters::AND, and_pos));
+    del_positions.insert(std::make_pair(Delimiters::OR, or_pos));
+    del_positions.insert(std::make_pair(Delimiters::AMPERSAND, bg_mode_pos));
+    del_positions.insert(std::make_pair(Delimiters::SEMICOLON, sequently_pos));
+    
+    std::string initial_key= "";
+    std::pair<std::string, std::string::size_type> minimum_value = 
+        std::make_pair(initial_key, std::string::npos);
+    for(const std::pair<std::string, std::string::size_type> &d_pos : 
+            del_positions)
+    {
+        if(d_pos.second < minimum_value.second)
+        {
+            minimum_value = std::make_pair(d_pos.first, d_pos.second);
+        }
+    }
+    std::string result;
+    if(minimum_value.second != std::string::npos) {
+        // Pops out a substring from the beggining till the first
+        // occurence of the delimiter. first.length() is used because 
+        // delimitres can be different sizes
+        result = pop_substr(src, 0, 
+                minimum_value.second + minimum_value.first.length() - 1);
+        // deletes delimiter from the substrin
+        result = result.substr(0, 
+                result.length() - minimum_value.first.length());
+    }
+    else
+    {
+        // No delimitres case. Pops out the whole src to result
+        result = pop_substr(src, 0, src.length() - 1); 
+    }
+    Commands command_instance(minimum_value.first);
+    command_instance.string_to_tokens(result);
+    return command_instance;
+}
+
 // splits user input into the simplest sets of commands
 // !!!!!
-// Commands::Commands is replaced for debug
+// Commands is replaced for debug
 // recursivly disassembles input, initializes new Command objects
-bool input_to_commands(std::string &src)
+void input_to_commands(std::vector<Commands> &coms_vec, 
+        std::string &src)
 {
-    std::string res = split_brackets(src); 
-    std::cout << res << std::endl;
-    std::cout << src << std::endl;
-    std::cout << "NEXT" << std::endl;
+    std::string res = split_brackets(src);
+    std::string to_object;
     if(!res.empty())
     {
-        input_to_commands(res);
+        input_to_commands(coms_vec, res);
+        
     }
-    // I should correct firstly command.cpp
-    /*else()
-    return false;  */ 
-}
-std::vector<Commands> split_row_input(std::string &src)
-{
-    input_to_commands(src);
-    std::vector<Commands> coms; 
-    return coms;
+    else if(!src.empty())
+    {
+        std::string del = "";
+        coms_vec.push_back(split_delimiters(src));
+        input_to_commands(coms_vec, src);
+    }
 }
 
 int main()
 {
     std::string input;
-    std::forward_list<Commands> commands_list;
-// testing split string into tokens
+    std::vector<Commands> commands_list;
+// testing spliting input into commands
     getline(std::cin, input);
-/*    
+   
     while(input != "exit")
     {
-        Commands com;
-        com.string_to_tokens(input);
-        com.print_tokens();
-        com.execute_commands();
+        
+        input_to_commands(commands_list, input);
+        for(Commands &c : commands_list)
+        {
+            c.print_tokens();
+        }
+        commands_list.clear();
         getline(std::cin, input);
     }
-*/
+/*
 // Testing quotes
     while(input != "exit")
     {
         split_row_input(input);
         getline(std::cin, input);
     }
+*/
     return 0;
 }
