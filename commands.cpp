@@ -10,7 +10,7 @@
 
 static bool execute_and_wait(const std::vector<std::string> &tokens);
 static bool bg_mode_execute(const std::vector<std::string> &tokens);
-static std::vector<char*> vector_to_pointer_array(const std::vector<std::string> 
+static std::vector<char*> vector_to_pointer_vector(const std::vector<std::string> 
         &tokens);
 static bool execute_change_of_directory(const std::vector<std::string> &tokens);
 
@@ -175,7 +175,7 @@ static bool execute_and_wait(const std::vector<std::string> &tokens)
     {
         return execute_change_of_directory(tokens); 
     }
-    std::vector <char*> cstyle_tokens = vector_to_pointer_array(tokens);
+    std::vector <char*> cstyle_tokens = vector_to_pointer_vector(tokens);
     std::cout << std::flush;
     int pid = fork();
     if(pid == -1)
@@ -234,7 +234,7 @@ static bool bg_mode_execute(const std::vector<std::string> &tokens)
     {
         return execute_change_of_directory(tokens); 
     }
-    std::vector<char*> cstyle_tokens = vector_to_pointer_array(tokens);
+    std::vector<char*> cstyle_tokens = vector_to_pointer_vector(tokens);
     std::cout << std::flush;
     int pid = fork();
     if(pid == -1)
@@ -251,7 +251,7 @@ static bool bg_mode_execute(const std::vector<std::string> &tokens)
     return true;
 }
 
-static std::vector<char*> vector_to_pointer_array(const std::vector<std::string> 
+static std::vector<char*> vector_to_pointer_vector(const std::vector<std::string> 
         &tokens)
 {
     // flushes buffer to prevent duplication of data in processes
