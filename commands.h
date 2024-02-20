@@ -8,6 +8,9 @@ namespace Delimiters {
     constexpr char OR[] = "||";
     constexpr char SEMICOLON[] = ";";
     constexpr char AMPERSAND[] = "&";
+    constexpr char WRITE[] = ">";
+    constexpr char APPEND[] = ">>";
+    constexpr char READ[] = "<";
 }
 
 class Commands

@@ -9,5 +9,7 @@ done <<END
     echo "Test 3:"; echo hello && touch new.txt ; ls -l && rm new.txt ; echo by ; ls -l
     echo "Test 4:"; ls -l ; mkdir new_test_dir ; ls -l ; cd new_test_dir ; pwd; ls -l
     echo "Test 5:"; cd ; ls -la;
+    echo "Test 6:"; xterm top &
+    echo "Test 7:"; sleep 100 & xterm top
     exit
 END

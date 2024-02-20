@@ -13,10 +13,22 @@ I have to add new class to group processes. -- split_brackets function
 is comment out. Spliting into groups will be implemented later
 (after pipes and zombie handlers).
 
-For class commands new methods should be implemented for handling different
++ For class commands new methods should be implemented for handling different
 types of execution, e.g. commands.bg_mode_execute(), commands.and_execute()
 and so on.
 
-Change execute_commands function to non-const, it should handle delimitres.
+Change execute_commands it should handle delimitres.
 If delimiter is "&&" and current process failes the next one should be
 skipped.
+
++ bg_mode handling is added
++ no delimiter handling is added
+
+Add proper zombie handler using s SIGCHLD (I do not know if waitpid removes
+zombies of a different process in my case)
+
++ Add to bg_mode_execute printing out pid of process.
+
+CD command should be handled differenly for background mode (should 
+actually fork, change directory, exit). For "(  )" case should be provided
+new tools (like group class or something)

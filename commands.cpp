@@ -12,8 +12,11 @@ static bool execute_and_wait(const std::vector<std::string> &tokens);
 static bool bg_mode_execute(const std::vector<std::string> &tokens);
 static std::vector<char*> vector_to_pointer_vector(const std::vector<std::string> 
         &tokens);
-static bool execute_change_of_directory(const std::vector<std::string> &tokens);
-
+// changes directory, returns PID of a current process on success, otherwise -1
+static int execute_change_of_directory(const std::vector<std::string> &tokens);
+// executes changes passed in vector of strings using execvp, return PID on
+// success, -1 otherwise
+static int execute_tokens_return_pid(const std::vector<std::string> &tokens);
 
 bool Commands::string_to_tokens(const std::string &src)
 {
@@ -129,8 +132,7 @@ void Commands::print_tokens() const
     std::cout << "DEL: '" << end_delimiter << "'" << std::endl;
     std::cout << std::endl;
 }
-
-static bool execute_change_of_directory(const std::vector<std::string> &tokens)
+static int execute_change_of_directory(const std::vector<std::string> &tokens)
 {
     if(tokens.size() == 1)
     {
@@ -140,18 +142,18 @@ static bool execute_change_of_directory(const std::vector<std::string> &tokens)
         {
             if(!chdir(path))
             {
-                return true;
+                return getpid();
             }
             else
             {
                 perror("chdir");
-                return false;
+                return -1;
             }
         }
         else
         {
             perror("Enviroment");
-            return false;
+            return -1;
         }
     }
     else if(tokens.size() == 2)
@@ -159,18 +161,18 @@ static bool execute_change_of_directory(const std::vector<std::string> &tokens)
         // string to c_str
         if(!chdir(tokens.at(1).c_str()))
         {
-            return true;
+            return getpid();
         }
         else
         {
             perror("Invalid path");
-            return false;
+            return -1;
         }
     }
     else
     {
         // this terminal does not provide any flags for cd command
-        return false;
+        return -1;
     }
 }
 
@@ -178,23 +180,17 @@ static bool execute_change_of_directory(const std::vector<std::string> &tokens)
 // returns true if finished successfully, otherwise false
 static bool execute_and_wait(const std::vector<std::string> &tokens)
 {
-    if(tokens.front() == "cd")
-    {
-        return execute_change_of_directory(tokens); 
-    }
-    std::vector <char*> cstyle_tokens = vector_to_pointer_vector(tokens);
-    std::cout << std::flush;
-    int pid = fork();
+    // if -1 was returned the process it means procces is not started
+    int pid = execute_tokens_return_pid(tokens);
     if(pid == -1)
     {
-        perror("pid");
         return false;
     }
-    if(pid == 0)
+    // case of "cd" is handled separetly, because directoy of a process can
+    // be changed only by this process, not with exec call
+    else if(pid == getpid())
     {
-        execvp(cstyle_tokens.at(0), cstyle_tokens.data());
-        perror("execvp");
-    return false;
+        return true;
     }
     // Proper waitpid handling to ensure that next process will be handled
     // correctly even with delimiter. 
@@ -234,11 +230,13 @@ static bool execute_and_wait(const std::vector<std::string> &tokens)
     // I am not sure if this case is even possible
     return false;
 }
-
-static bool bg_mode_execute(const std::vector<std::string> &tokens)
+// executes process using passed vector of strings as a command 
+// returns its PID on success, otherwise returns -1, returns 
+static int execute_tokens_return_pid(const std::vector<std::string> &tokens)
 {
     if(tokens.front() == "cd")
     {
+        // also returns pid or -1 on failure
         return execute_change_of_directory(tokens); 
     }
     std::vector<char*> cstyle_tokens = vector_to_pointer_vector(tokens);
@@ -247,15 +245,27 @@ static bool bg_mode_execute(const std::vector<std::string> &tokens)
     if(pid == -1)
     {
         perror("pid");
-        return false;
+        return -1;
     }
     if(pid == 0)
     {
         execvp(cstyle_tokens.at(0), cstyle_tokens.data());
         perror("execvp");
-        return false;
+        return -1;
     }
-    return true;
+    return pid;
+}
+static bool bg_mode_execute(const std::vector<std::string> &tokens)
+{
+    int pid = execute_tokens_return_pid(tokens);
+    // if background process could not start pid equals -1
+    if(pid != -1)
+    {
+        // May be another output should be implemented
+        std::cout << "[" << pid << "]" << std::endl;
+        return true;
+    }
+    return false;
 }
 
 static std::vector<char*> vector_to_pointer_vector(const std::vector<std::string> 
