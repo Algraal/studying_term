@@ -249,14 +249,8 @@ Commands split_delimiters(std::string &src)
 void input_to_commands(std::vector<Commands> &coms_vec, 
         std::string &src)
 {
-    std::string res = split_brackets(src);
-    std::string to_object;
-    if(!res.empty())
-    {
-        input_to_commands(coms_vec, res);
-        
-    }
-    else if(!src.empty())
+
+    if(!src.empty())
     {
         std::string del = "";
         coms_vec.push_back(split_delimiters(src));
@@ -282,13 +276,5 @@ int main()
         commands_list.clear();
         getline(std::cin, input);
     }
-/*
-// Testing quotes
-    while(input != "exit")
-    {
-        split_row_input(input);
-        getline(std::cin, input);
-    }
-*/
     return 0;
 }

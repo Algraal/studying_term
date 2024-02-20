@@ -5,3 +5,10 @@ is entered. I should write preanalysis of raw input.
 
 find, rfind can be changed to find_if 
 
+() and {} does not work as I thought. input_to_command should be reworked. 
+
+I have to add new class to group processes. -- split_brackets function is comment out. Spliting into groups
+will be implemented later (after pipes and zombie handlers).
+
+For class commands new methods should be implemented for handling different types of execution, 
+e.g. commands.bg_mode_execute(), commands.and_execute() and so on.
