@@ -108,7 +108,14 @@ bool Commands::execute_commands()
         perror("Empty tokens");
         return false;
     }
-    return execute_and_wait(tokens);
+    if(get_end_delimiter() == Delimiters::AMPERSAND)
+    {
+        return bg_mode_execute(tokens);
+    }
+    else
+    {
+        return execute_and_wait(tokens);
+    }
     // !!! CHANGE cd can be used with delimitres, it should be considered
 
 }

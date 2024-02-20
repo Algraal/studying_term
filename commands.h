@@ -19,6 +19,7 @@ public:
     bool string_to_tokens(const std::string &src);
     // prints tokens for debug
     void print_tokens() const;
+    inline std::string get_end_delimiter() { return end_delimiter; };
     // executes request using tokens as a command for execvp
     bool execute_commands();
 private:
