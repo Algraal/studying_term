@@ -1,12 +1,19 @@
 #include <cstdlib>
 #include <iostream>
-#include <algorithm>
 #include <unistd.h>
 #include <cstring>
 #include <sys/wait.h>
-#include <array>
+#include <vector>
 
 #include "commands.h"
+
+
+static bool execute_and_wait(const std::vector<std::string> &tokens);
+static bool bg_mode_execute(const std::vector<std::string> &tokens);
+static std::vector<char*> vector_to_pointer_array(const std::vector<std::string> 
+        &tokens);
+static bool execute_change_of_directory(const std::vector<std::string> &tokens);
+
 
 bool Commands::string_to_tokens(const std::string &src)
 {
@@ -94,44 +101,16 @@ bool Commands::string_to_tokens(const std::string &src)
     return true;
 }
 
-bool Commands::execute_commands() const
+bool Commands::execute_commands() 
 {
     if(tokens.empty())
     {
         perror("Empty tokens");
         return false;
     }
-    if(tokens.front() == "cd")
-    {
-        return this->execute_change_of_directory(); 
-    }
-    // flushes buffer to prevent duplication of data in processes
-    std::vector <char*> cstyle_tokens;
-    // copies content of tocken vector of strings into vector of 
-    // c style strings
-    for(const std::string& token : tokens)
-    {
-        cstyle_tokens.push_back(const_cast<char*>(token.c_str()));
-    }
-    // adds null_ptr to cstring. execvp expects NULL at the end of
-    // array of commands
-    cstyle_tokens.push_back(nullptr);
-    
-    std::cout << std::flush;
-    int pid = fork();
-    if(pid == -1)
-    {
-        perror("pid");
-        return false;
-    }
-    if(pid == 0)
-    {
-        execvp(cstyle_tokens.at(0), cstyle_tokens.data());
-        perror("execvp");
-        return false;
-    }
-    wait(NULL);
-    return true;
+    return execute_and_wait(tokens);
+    // !!! CHANGE cd can be used with delimitres, it should be considered
+
 }
 
 void Commands::print_tokens() const
@@ -144,7 +123,7 @@ void Commands::print_tokens() const
     std::cout << std::endl;
 }
 
-bool Commands::execute_change_of_directory() const
+static bool execute_change_of_directory(const std::vector<std::string> &tokens)
 {
     if(tokens.size() == 1)
     {
@@ -187,3 +166,105 @@ bool Commands::execute_change_of_directory() const
         return false;
     }
 }
+
+// executes provided set of tokens using execve, waits until it finishes,
+// returns true if finished successfully, otherwise false
+static bool execute_and_wait(const std::vector<std::string> &tokens)
+{
+    if(tokens.front() == "cd")
+    {
+        return execute_change_of_directory(tokens); 
+    }
+    std::vector <char*> cstyle_tokens = vector_to_pointer_array(tokens);
+    std::cout << std::flush;
+    int pid = fork();
+    if(pid == -1)
+    {
+        perror("pid");
+        return false;
+    }
+    if(pid == 0)
+    {
+        execvp(cstyle_tokens.at(0), cstyle_tokens.data());
+        perror("execvp");
+    return false;
+    }
+    // Proper waitpid handling to ensure that next process will be handled
+    // correctly even with delimiter. 
+    int status;
+    pid_t p;
+    do
+    {
+        p = waitpid(pid, &status, 0);
+        if(p == -1)
+        {
+            perror("waitpid");
+            return false;
+        }
+    }
+    // WIFEXITED returns true if the child terminated nomrally
+    // WIFSIGNALED returns true if the child was terminated by a signal
+    while(!WIFEXITED(status) && !WIFSIGNALED(status));
+    
+    if(WIFEXITED(status))
+    {
+        int exit_status = WEXITSTATUS(status);
+        if(exit_status == 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    // I tested killing process with SIGKILL, work of process was 
+    // considered successful.
+    else if (WIFSIGNALED(status))
+    {
+        return true;
+    }
+    // I am not sure if this case is even possible
+    return false;
+}
+
+static bool bg_mode_execute(const std::vector<std::string> &tokens)
+{
+    if(tokens.front() == "cd")
+    {
+        return execute_change_of_directory(tokens); 
+    }
+    std::vector<char*> cstyle_tokens = vector_to_pointer_array(tokens);
+    std::cout << std::flush;
+    int pid = fork();
+    if(pid == -1)
+    {
+        perror("pid");
+        return false;
+    }
+    if(pid == 0)
+    {
+        execvp(cstyle_tokens.at(0), cstyle_tokens.data());
+        perror("execvp");
+        return false;
+    }
+    return true;
+}
+
+static std::vector<char*> vector_to_pointer_array(const std::vector<std::string> 
+        &tokens)
+{
+    // flushes buffer to prevent duplication of data in processes
+    std::vector <char*> cstyle_tokens;
+    // copies content of tocken vector of strings into vector of 
+    // c style strings
+    for(const std::string& token : tokens)
+    {
+        cstyle_tokens.push_back(const_cast<char*>(token.c_str()));
+    }
+    // adds null_ptr to cstring. execvp expects NULL at the end of
+    // array of commands
+    cstyle_tokens.push_back(nullptr);
+    return cstyle_tokens;
+}
+

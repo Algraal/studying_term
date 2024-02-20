@@ -1,14 +1,22 @@
-1. In real terminal unmatched '(' is not an error. In this case terminal expects for user input until ')'
-is entered. I should write preanalysis of raw input.
+1. In real terminal unmatched '(' is not an error. In this case terminal
+expects for user input until ')' is entered. I should write preanalysis 
+of raw input.
 
-+ BUG IN input_to_commands. Probably indexing to addresses that do not belong to the string. 
++ BUG IN input_to_commands. Probably indexing to addresses that do not
+belong to the string. 
 
 find, rfind can be changed to find_if 
 
 () and {} does not work as I thought. input_to_command should be reworked. 
 
-I have to add new class to group processes. -- split_brackets function is comment out. Spliting into groups
-will be implemented later (after pipes and zombie handlers).
+I have to add new class to group processes. -- split_brackets function
+is comment out. Spliting into groups will be implemented later
+(after pipes and zombie handlers).
 
-For class commands new methods should be implemented for handling different types of execution, 
-e.g. commands.bg_mode_execute(), commands.and_execute() and so on.
+For class commands new methods should be implemented for handling different
+types of execution, e.g. commands.bg_mode_execute(), commands.and_execute()
+and so on.
+
+Change execute_commands function to non-const, it should handle delimitres.
+If delimiter is "&&" and current process failes the next one should be
+skipped.

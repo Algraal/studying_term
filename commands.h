@@ -20,7 +20,7 @@ public:
     // prints tokens for debug
     void print_tokens() const;
     // executes request using tokens as a command for execvp
-    bool execute_commands() const;
+    bool execute_commands();
 private:
     // tokens stores a set of commands, flags, filenames and other tokens
     // to be executed by execve
@@ -28,7 +28,6 @@ private:
     // property that defines delimiter that separates from another command
     std::string end_delimiter;
     // function to execute terminal cd commad
-    bool execute_change_of_directory() const;
 };
 
 #endif
