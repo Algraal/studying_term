@@ -26,7 +26,9 @@ private:
     // to be executed by execve
     std::vector<std::string> tokens;
     // property that defines delimiter that separates from another command
-    std::string end_delimiter; 
+    std::string end_delimiter;
+    // function to execute terminal cd commad
+    bool execute_change_of_directory() const;
 };
 
 #endif

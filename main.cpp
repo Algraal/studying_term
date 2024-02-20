@@ -264,7 +264,7 @@ int main()
     std::vector<Commands> commands_list;
 // testing spliting input into commands
     getline(std::cin, input);
-   
+  /* Print test 
     while(input != "exit")
     {
         
@@ -272,6 +272,18 @@ int main()
         for(Commands &c : commands_list)
         {
             c.print_tokens();
+        }
+        commands_list.clear();
+        getline(std::cin, input);
+    }
+*/
+	while(input != "exit")
+    {
+        
+        input_to_commands(commands_list, input);
+        for(Commands &c : commands_list)
+        {
+            c.execute_commands();
         }
         commands_list.clear();
         getline(std::cin, input);

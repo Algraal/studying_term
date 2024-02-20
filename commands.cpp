@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <algorithm>
 #include <unistd.h>
@@ -100,6 +101,10 @@ bool Commands::execute_commands() const
         perror("Empty tokens");
         return false;
     }
+    if(tokens.front() == "cd")
+    {
+        return this->execute_change_of_directory(); 
+    }
     // flushes buffer to prevent duplication of data in processes
     std::vector <char*> cstyle_tokens;
     // copies content of tocken vector of strings into vector of 
@@ -137,4 +142,48 @@ void Commands::print_tokens() const
     }
     std::cout << "DEL: '" << end_delimiter << "'" << std::endl;
     std::cout << std::endl;
+}
+
+bool Commands::execute_change_of_directory() const
+{
+    if(tokens.size() == 1)
+    {
+        // secure_genev another option, but I am not sure how effecient it for the terminal app
+        const char* path = std::getenv("HOME");
+        if(path != nullptr)
+        {
+            if(!chdir(path))
+            {
+                return true;
+            }
+            else
+            {
+                perror("chdir");
+                return false;
+            }
+        }
+        else
+        {
+            perror("Enviroment");
+            return false;
+        }
+    }
+    else if(tokens.size() == 2)
+    {
+        // string to c_str
+        if(!chdir(tokens.at(1).c_str()))
+        {
+            return true;
+        }
+        else
+        {
+            perror("Invalid path");
+            return false;
+        }
+    }
+    else
+    {
+        // this terminal does not provide any flags for cd command
+        return false;
+    }
 }
