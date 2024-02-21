@@ -30,7 +30,10 @@ private:
     // to be executed by execve
     std::vector<std::string> tokens;
     // property that defines delimiter that separates from another command
+    void set_redirection();
     std::string end_delimiter;
+    std::string file_name;
+    std::string redirection_type;
     // function to execute terminal cd commad
 };
 

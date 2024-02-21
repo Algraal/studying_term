@@ -201,14 +201,14 @@ Commands split_delimiters(std::string &src)
             bg_mode_pos = std::string::npos;
         }
     }
-
+    // map for storing delimiter and its position
     std::map<std::string, std::string::size_type> del_positions;
-
+    // sets postions of first occurance of Delimiters
     del_positions.insert(std::make_pair(Delimiters::AND, and_pos));
     del_positions.insert(std::make_pair(Delimiters::OR, or_pos));
     del_positions.insert(std::make_pair(Delimiters::AMPERSAND, bg_mode_pos));
     del_positions.insert(std::make_pair(Delimiters::SEMICOLON, sequently_pos));
-    
+    // seeks for first delimiter in a provided string 
     std::string initial_key= "";
     std::pair<std::string, std::string::size_type> minimum_value = 
         std::make_pair(initial_key, std::string::npos);
@@ -263,7 +263,7 @@ int main()
     std::vector<Commands> commands_list;
 // testing spliting input into commands
     getline(std::cin, input);
-  /* Print test 
+/* Print test 
     while(input != "exit")
     {
         
@@ -276,6 +276,7 @@ int main()
         getline(std::cin, input);
     }
 */
+
 	while(input != "exit")
     {
         

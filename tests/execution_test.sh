@@ -11,5 +11,7 @@ done <<END
     echo "Test 5:"; cd ; ls -la;
     echo "Test 6:"; xterm top &
     echo "Test 7:"; sleep 100 & xterm top
+    echo "Test 8:"; echo "This >text<< && that gr>eetings">test_created.txt ; cat test_created.txt ; echo "Append test " >> test_created.txt "After red test"; cat test_created.txt
+    echo "Test 9:"; rm test_created.txt ; ls -l >> main_directory.txt ; cat main_directory.txt; rm main_directory.txt
     exit
 END
