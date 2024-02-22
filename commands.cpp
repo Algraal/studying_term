@@ -8,7 +8,8 @@
 #include <fcntl.h>
 
 #include "commands.h"
-
+// provides function is_pos_quoted, is_char_on_pos
+#include "row_input_handle.h"
 
 static bool execute_and_wait(const std::vector<std::string> &tokens);
 static bool bg_mode_execute(const std::vector<std::string> &tokens);
@@ -23,6 +24,82 @@ static int execute_tokens_return_pid(const std::vector<std::string> &tokens);
 static int redirect(int std_fd, int file_fd);
 static std::string remove_tokens_for_redirection(std::vector<std::string> &tokens, size_t pos);
 
+
+bool Commands::string_to_tokens(const std::string &src)
+{
+    std::string token = "";
+    size_t pos;
+    for(pos = 0; pos < src.length(); ++pos)
+    {
+        // if char is unshielded quote 
+        if(src.at(pos) == '"' && !is_char_on_pos(src, pos - 1, '\\'))
+        {
+            // empty quotes "" are considered a suitable token
+            if(is_pos_quoted(src, pos))
+            {
+                tokens.push_back(token);
+            }
+            else
+            {
+                token.empty() ? void() : tokens.push_back(token);           
+            }
+            token = "";
+        }
+        else if(src.at(pos) == '\\' && !is_pos_quoted(src, pos) && 
+                !is_char_on_pos(src, pos - 1, '\\'))
+        {
+            // do nothing
+        }
+        else if((src.at(pos) == ' ' || src.at(pos) == '\t') && 
+                !is_pos_quoted(src, pos) &&
+                !is_char_on_pos(src, pos-1, '\\'))
+        {
+            token.empty() ? void() : tokens.push_back(token);
+            token = "";
+        }
+        else if(src.at(pos) == '<' && !is_pos_quoted(src, pos) && 
+                !is_char_on_pos(src, pos - 1, '\\'))
+        {
+            // pushes current token and "<" redirector (redirectors are 
+            // considered an independent tokens for easier processing)
+            token.empty() ? void() : tokens.push_back(token);
+            tokens.push_back("<");
+            token = "";
+        }
+        else if(src.at(pos) == '>' && !is_pos_quoted(src, pos) && 
+                !is_char_on_pos(src, pos - 1, '\\'))
+        {
+            token.empty() ? void() : tokens.push_back(token);
+            token = "";
+            if(is_char_on_pos(src, pos + 1, '>'))
+            {
+                tokens.push_back(">>");
+                // we should skip next step if next symbol is also >
+                pos++;
+            }
+            else
+            {
+                tokens.push_back(">");
+            }
+        }
+        else
+        {
+            token += src.at(pos);
+        }
+    }
+    // pushes last token if it exists
+    token.empty() ? void() : tokens.push_back(token);
+    // checks if last character is quoted as it means unmatched quote
+    if(is_pos_quoted(src, pos -1))
+    {
+        std::cout << "Error: unmatched quote." << std::endl;
+        return false;
+    }
+    // redirection analysis
+    set_redirection(); 
+    return true;
+}
+/*
 bool Commands::string_to_tokens(const std::string &src)
 {
     // variables-modifiers of input
@@ -160,6 +237,7 @@ bool Commands::string_to_tokens(const std::string &src)
     set_redirection(); 
     return true;
 }
+*/
 // deletes redirection delimiter and file name if it exists, returns file_name
 static std::string remove_tokens_for_redirection(std::vector<std::string> &tokens, size_t pos)
 {
