@@ -13,17 +13,16 @@ bool is_char_on_pos(const std::string &src, std::string::size_type pos, char nex
     return false;
 }
 
-std::map<std::string::size_type, std::string::size_type> find_matched_quotes(
+static std::map<std::string::size_type, std::string::size_type> find_matched_quotes(
         const std::string &src)
 {
     std::map<std::string::size_type, std::string::size_type> quotes_positions;
-    bool is_shielded = false;
     bool is_quoted = false;
     std::string::size_type opening_quote = std::string::npos;
     for(std::string::size_type pos = 0; pos < src.length(); ++pos)
     {
         const char &ch = src[pos];
-        if(ch == '"' && !is_shielded)
+        if(ch == '"' && !is_char_on_pos(src, pos - 1, '\\'))
         {
             if(!is_quoted)
             {
@@ -39,20 +38,14 @@ std::map<std::string::size_type, std::string::size_type> find_matched_quotes(
         }
         // unmatched quote case is not considered an error in splitting input.
         // this error is handled later (handling it now can break the order of execution)
-        if(ch == '\\' && !is_shielded)
-        {
-            is_shielded = true; 
-        }
-        else if(is_shielded)
-        {
-            is_shielded = false;
-        }
     }
-     if(is_quoted)
-        {
-            quotes_positions.insert(std::make_pair(opening_quote, 
-                        std::string::npos));
-        }
+    // in case of unmatched quote in the end it cannot be inserted inside loop,
+    // so it is done aftwerwards
+    if(is_quoted)
+    {
+        quotes_positions.insert(std::make_pair(opening_quote, 
+                    std::string::npos));
+    }
     return quotes_positions;
 }
 // function to check if passed position inside one of the ranges provided

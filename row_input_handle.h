@@ -9,8 +9,8 @@
 // out of bounds
 bool is_char_on_pos(const std::string &src, std::string::size_type pos, 
         char next_ch);
-// returns a map with ranges of quotes
-std::map<std::string::size_type, std::string::size_type> find_matched_quotes(
+// returns a map with ranges of quotes for a passed string.
+static std::map<std::string::size_type, std::string::size_type> find_matched_quotes(
         const std::string &src);
 // function to check if passed position inside one of the ranges provided
 // in map of indexes
