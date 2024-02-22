@@ -1,11 +1,11 @@
 #include "row_input_handle.h"
 
-// checks if next symbol is a passed one
-bool is_next_char(const std::string &src, std::string::size_type pos, char next_ch)
+
+bool is_char_on_pos(const std::string &src, std::string::size_type pos, char next_ch)
 {
-    if(pos + 1 < src.length())
+    if(pos >= 0 && pos < src.length())
     {
-        if(src.at(pos+1) == next_ch)
+        if(src.at(pos) == next_ch)
         {
             return true;
         }

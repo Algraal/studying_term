@@ -43,7 +43,7 @@ Commands split_delimiters(std::string &src)
     if(bg_mode_pos != std::string::npos)
     {
         // if the first symbol is & and the next one is & we get &&
-        if(is_next_char(src, bg_mode_pos, '&')) {
+        if(is_char_on_pos(src, bg_mode_pos + 1, '&')) {
             and_pos = bg_mode_pos;
             bg_mode_pos = std::string::npos;
         }
