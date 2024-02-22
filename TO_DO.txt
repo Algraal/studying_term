@@ -32,3 +32,5 @@ zombies of a different process in my case)
 CD command should be handled differenly for background mode (should 
 actually fork, change directory, exit). For "(  )" case should be provided
 new tools (like group class or something)
+
+Refactor split_into_tokens. is_pos_quoted can be implemented differently
