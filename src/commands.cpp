@@ -7,9 +7,9 @@
 #include <vector>
 #include <fcntl.h>
 
-#include "commands.h"
+#include "../include/commands.h"
 // provides function is_pos_quoted, is_char_on_pos
-#include "row_input_handle.h"
+#include "../include/row_input_handle.h"
 
 static bool execute_and_wait(const std::vector<std::string> &tokens);
 static bool bg_mode_execute(const std::vector<std::string> &tokens);

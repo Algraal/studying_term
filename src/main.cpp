@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
 
-#include "commands.h"
-#include "row_input_handle.h"
+#include "../include/commands.h"
+#include "../include/row_input_handle.h"
 
 // finds matching service brackets (content in brackets has the highest 
 // priority). Returns brackets substring, removing it from the source 
